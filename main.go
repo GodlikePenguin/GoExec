@@ -12,6 +12,7 @@ import (
 
 func main() {
 	http.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Add("Access-Control-Allow-Origin", "*")
 		currentTime := time.Now().UnixNano() / int64(time.Millisecond)
 		filePath := fmt.Sprintf("/tmp/%d.go", currentTime)
 		body, err := ioutil.ReadAll(request.Body)
@@ -26,7 +27,7 @@ func main() {
 		}
 		cmdOut, err := exec.Command("go", "run", filePath).CombinedOutput()
 		if err != nil {
-			fmt.Fprintln(writer, "Error running go file: "+err.Error())
+			fmt.Fprintln(writer, fmt.Sprintf("Error running go file: %s %s", err.Error(), cmdOut))
 			return
 		}
 		fmt.Fprintln(writer, string(cmdOut))
